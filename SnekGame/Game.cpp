@@ -1,0 +1,98 @@
+#include "Game.h"
+
+Game::Game(int width, int height) : m_width{ width }, m_height{ height } {
+	// Generate the 2d array for the board
+	board = new GameObject * [m_height];
+	for (int row{ 0 }; row < m_height; ++row) {
+		board[row] = new GameObject[m_width];
+	}
+
+	// Determine the size of the horizontal borders
+	for (int i{ 0 }; i < m_width * 2 + 2; i++) {
+		m_horizontalBorders += "-";
+	}
+
+	// Set the snake to the starting presets
+	snake.m_length = 3;
+	snake.m_snakePos.push_back({ width / 2, height / 2 });
+	snake.m_snakePos.push_back({ 0, 0 });
+
+	// Generate the first apple
+	generateApple();
+}
+
+std::string Game::getRenderedBoard() {
+	// Print header text and horizontal bar
+	int length = snake.m_length - 1;
+	std::string output{ "Snek v0.1 | Current Length: " + std::to_string(length) + "\n" };
+	output += m_horizontalBorders + "\n";
+
+	// Print the snake to the field
+	for (int i{ 1 }; i < snake.m_snakePos.size(); ++i) {
+		std::array<int, 2> pos = snake.m_snakePos.at(i);
+		SpriteType sprite = (i == snake.m_snakePos.size() - 1 ?
+			SpriteType::EMPTY_TILE : SpriteType::SNAKE_TAIL);
+		board[pos[1]][pos[0]] = sprite;
+	}
+
+	// Print the snake's head so it overlaps the rest of the snake
+	std::array<int, 2> headPos = snake.m_snakePos.at(0);
+	board[headPos[1]][headPos[0]] = SpriteType::SNAKE_HEAD;
+
+	// Print each cell of the field
+	for (int row{ 0 }; row < m_height; ++row) {
+		output += "|";
+		for (int column{ 0 }; column < m_width; column++) {
+			output += (board[row][column].getRenderedSprite()) + " ";
+		}
+		output += "|\n";
+	}
+
+	// Add the bottom border
+	output += m_horizontalBorders;
+
+	return output;
+}
+
+Snake& Game::getSnake() {
+	return snake;
+}
+
+void Game::update() {
+	// Sets the board's status if the snake is moving and is not colliding with the walls
+	isActive = snake.move() && !snake.checkBoundaryCollision(m_width, m_height);
+
+	// Check to see if the snake collided with the apple
+	if (snake.checkAppleCollision(applePos)) {
+		snake.m_length++;
+		generateApple();
+	}
+
+	// Print the board if it's active
+	if (isActive)
+		std::cout << getRenderedBoard();
+}
+
+void Game::generateApple() {
+	srand(static_cast<unsigned int>(time(NULL)));
+
+	// Sets the X and Y position of the apple
+	int x = rand() % m_width;
+	int y = rand() % m_height;
+
+	// Checks to see if the apple will spawn on top of the snake
+	for (int i{ 0 }; i < snake.m_snakePos.size(); ++i) {
+		auto &pos = snake.m_snakePos.at(i);
+		// Regenerate the apple if it is
+		if (pos[0] == y && pos[1] == x) {
+			generateApple();
+			return;
+		}
+	}
+
+	// Set the apple's position
+	applePos[0] = x;
+	applePos[1] = y;
+
+	board[y][x] = SpriteType::APPLE;
+}
