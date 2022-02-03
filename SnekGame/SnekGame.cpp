@@ -9,7 +9,7 @@
 /// <summary>
 /// The FPS of the snake game
 /// </summary>
-const float g_fps{ 20.0f };
+const float g_fps{ 30.0f };
 
 /// <summary>
 /// Clears the screen

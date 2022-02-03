@@ -35,16 +35,13 @@ std::string Game::getRenderedBoard() {
 	output += m_horizontalBorders + "\n";
 
 	// Print the snake to the field
-	for (int i{ 1 }; i < snake.m_snakePos.size(); ++i) {
+	for (int i{ 0 }; i < snake.m_snakePos.size(); ++i) {
 		std::array<int, 2> pos = snake.m_snakePos.at(i);
 		SpriteType sprite = (i == snake.m_snakePos.size() - 1 ?
-			SpriteType::EMPTY_TILE : SpriteType::SNAKE_TAIL);
+			SpriteType::EMPTY_TILE : 
+			(i == 0 ? SpriteType::SNAKE_HEAD : SpriteType::SNAKE_TAIL));
 		board[pos[1]][pos[0]] = sprite;
 	}
-
-	// Print the snake's head so it overlaps the rest of the snake
-	std::array<int, 2> headPos = snake.m_snakePos.at(0);
-	board[headPos[1]][headPos[0]] = SpriteType::SNAKE_HEAD;
 
 	// Print each cell of the field
 	for (int row{ 0 }; row < m_height; ++row) {
