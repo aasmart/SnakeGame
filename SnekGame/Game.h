@@ -22,6 +22,8 @@ public:
 	/// <param name="height">The height of the board</param>
 	Game(int width, int height);
 
+	~Game();
+
 	/// <summary>
 	/// Gets the board in character form
 	/// </summary>

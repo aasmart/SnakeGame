@@ -21,13 +21,17 @@ Game::Game(int width, int height) : m_width{ width }, m_height{ height } {
 	generateApple();
 }
 
+Game::~Game() {
+	delete[] board;
+}
+
 std::string Game::getRenderedBoard() {
 	// Set the apple's position just in case
 	board[applePos[1]][applePos[0]] = SpriteType::APPLE;
 
 	// Print header text and horizontal bar
 	int length = snake.m_length - 1;
-	std::string output{ "Snek v0.1 | Current Length: " + std::to_string(length) + "\n" };
+	std::string output{ "Snek v0.2 | Current Length: " + std::to_string(length) + "\n" };
 	output += m_horizontalBorders + "\n";
 
 	// Print the snake to the field
@@ -73,7 +77,7 @@ void Game::update() {
 
 	// Print the board if it's active
 	if (isActive)
-		std::cout << applePos[0] << applePos[1] << getRenderedBoard();
+		std::cout << getRenderedBoard();
 }
 
 void Game::generateApple() {

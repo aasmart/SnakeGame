@@ -61,21 +61,11 @@ void handleKeyInput(Game& game) {
     }
 }
 
-int main()
-{
-    // Wait for player input to begin the game
-    std::cout << "Press 'W' to Start and 'S' to Cancel";
-    while (true) {
-        if (GetAsyncKeyState('W') & 0x8000)
-            break;
-        else if (GetAsyncKeyState('S') & 0x8000)
-            return 1;
-    }
-
+void play() {
     // Create the game field
-    Game game{20, 20};
+    Game game{ 20, 20 };
 
-    std::thread getKeyPressed{handleKeyInput, std::ref(game)};
+    std::thread getKeyPressed{ handleKeyInput, std::ref(game) };
 
     while (game.isActive) {
         clearScreen();
@@ -86,7 +76,22 @@ int main()
     }
 
     getKeyPressed.join();
-    std::cout << "You died with a length of " << game.getSnake().m_length - 1 << "!";
+    std::cout << "You died with a length of " << game.getSnake().m_length - 1 << "!" << std::endl;
+    Sleep(1000);
+    std::cout << "Press 'W' to Play and 'S' to Quit.";
+}
+
+int main()
+{
+    // Wait for player input to begin the game
+    std::cout << "Press 'W' to Play and 'S' to Quit.";
+    while (true) {
+        if (GetAsyncKeyState('W') & 0x8000)
+            play();
+        else if (GetAsyncKeyState('S') & 0x8000)
+            return 1;
+    }
+    
     return 1;
 }
 
