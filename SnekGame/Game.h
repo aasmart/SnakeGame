@@ -1,8 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Snake.h"
-#include <stdlib.h>
-#include <time.h>
+#include <random>
 #include <iostream>
 
 class Game {

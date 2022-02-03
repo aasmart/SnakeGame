@@ -25,6 +25,7 @@ void clearScreen(char fill = ' ') {
     FillConsoleOutputCharacter(console, fill, cells, tl, &written);
     FillConsoleOutputAttribute(console, s.wAttributes, cells, tl, &written);
     SetConsoleCursorPosition(console, tl);
+    //system("cls");
 }
 
 /// <summary>

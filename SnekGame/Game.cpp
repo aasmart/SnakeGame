@@ -74,11 +74,14 @@ void Game::update() {
 }
 
 void Game::generateApple() {
-	srand(static_cast<unsigned int>(time(NULL)));
+	std::random_device dev;
+	std::mt19937 rng(dev());
+	std::uniform_int_distribution<std::mt19937::result_type> xDist(0, m_width - 1);
+	std::uniform_int_distribution<std::mt19937::result_type> yDist(0, m_height - 1);
 
 	// Sets the X and Y position of the apple
-	int x = rand() % m_width;
-	int y = rand() % m_height;
+	int x = xDist(rng);
+	int y = yDist(rng);
 
 	// Checks to see if the apple will spawn on top of the snake
 	for (int i{ 0 }; i < snake.m_snakePos.size(); ++i) {
