@@ -12,6 +12,14 @@ class Game {
 	std::array<int, 2> applePos;
 
 	std::string m_horizontalBorders;
+
+	const float discountFactor = 1.0f;
+	const float alpha = 0.6f;
+	float epsilon = 0.1f;
+
+	std::mt19937 rng;
+	std::uniform_int_distribution<std::mt19937::result_type> xDist;
+	std::uniform_int_distribution<std::mt19937::result_type> yDist;
 public:
 	bool isActive{ true };
 
@@ -20,7 +28,7 @@ public:
 	/// </summary>
 	/// <param name="width">The width of the board</param>
 	/// <param name="height">The height of the board</param>
-	Game(int width, int height);
+	Game(int width, int height, std::mt19937 rng);
 
 	~Game();
 
@@ -45,4 +53,11 @@ public:
 	/// Creates an apple within the bounds of the game's field
 	/// </summary>
 	void generateApple();
+
+	std::array<float, 3>& qFunction(std::array<int, 12> state);
+
+	std::array<float, 3> epsilonGreedy(float epsilon, std::array<int, 12> state);
+
+	std::array<int, 12> getState();
+
 };
