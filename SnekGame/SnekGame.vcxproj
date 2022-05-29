@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Pos.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="SnekGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Pos.h" />
     <ClInclude Include="Snake.h" />
     <ClInclude Include="SnekGame.h" />
   </ItemGroup>

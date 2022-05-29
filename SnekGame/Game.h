@@ -3,13 +3,14 @@
 #include "Snake.h"
 #include <random>
 #include <iostream>
+#include "Pos.h"
 
 class Game {
 	const int m_width;
 	const int m_height;
 	GameObject** board{};
 	Snake snake;
-	std::array<int, 2> applePos;
+	Pos applePos;
 
 	std::string m_horizontalBorders;
 
@@ -22,6 +23,8 @@ class Game {
 	std::uniform_int_distribution<std::mt19937::result_type> yDist;
 public:
 	bool isActive{ true };
+
+	const static int states{ 16 };
 
 	/// <summary>
 	/// Creates a Game object
@@ -54,10 +57,10 @@ public:
 	/// </summary>
 	void generateApple();
 
-	std::array<float, 3>& qFunction(std::array<int, 12> state);
+	std::array<float, 3>& qFunction(std::array<int, states> &state);
 
-	std::array<float, 3> epsilonGreedy(float epsilon, std::array<int, 12> state);
+	std::array<float, 3> epsilonGreedy(float epsilon, std::array<int, states> &state);
 
-	std::array<int, 12> getState();
+	std::array<int, states> getState();
 
 };

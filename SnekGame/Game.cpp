@@ -33,22 +33,25 @@ Game::~Game() {
 
 std::string Game::getRenderedBoard() {
 	// Set the apple's position just in case
-	board[applePos[1]][applePos[0]] = SpriteType::APPLE;
+	board[applePos.y][applePos.x] = SpriteType::APPLE;
 
 	// Print header text and horizontal bar
 	int length = snake.m_length - 1;
-	std::string output{ "Snek AI v0.3 | Current Length: " + std::to_string(length) 
-		+ " | Iteration: " + std::to_string(iterations) + " | Moves: " + std::to_string(snake.m_moves) 
-		 + "\n" };
+	std::string output{
+		"Snek AI v0.3 | Current Length: " + std::to_string(length)
+		+ " | Iteration: " + std::to_string(iterations) + " | Moves: " + std::to_string(snake.m_moves)
+		+ " | Discoverd States: " + std::to_string(Q.size())
+		+ " | High Score: " + std::to_string(highScore)
+		+ "\n" };
 	output += m_horizontalBorders + "\n";
 
 	// Print the snake to the field
 	for (int i{ 0 }; i < snake.m_snakePos.size(); ++i) {
-		std::array<int, 2> pos = snake.m_snakePos.at(i);
+		Pos pos = snake.m_snakePos.at(i);
 		SpriteType sprite = (i == snake.m_snakePos.size() - 1 ?
 			SpriteType::EMPTY_TILE : 
 			(i == 0 ? SpriteType::SNAKE_HEAD : SpriteType::SNAKE_TAIL));
-		board[pos[1]][pos[0]] = sprite;
+		board[pos.y][pos.x] = sprite;
 	}
 
 	// Print each cell of the field
@@ -72,7 +75,7 @@ Snake& Game::getSnake() {
 
 void Game::update() {
 	// Get the game state and greed function
-	std::array<int, 12> state = getState();
+	std::array<int, states> state = getState();
 	std::array<float, 3> actions = epsilonGreedy(epsilon - (iterations * 0.00001f), state);
 
 	// Determine which action to perform
@@ -87,7 +90,7 @@ void Game::update() {
 	isActive = std::get<0>(activeReward) && !snake.checkBoundaryCollision(m_width, m_height);
 
 	int reward = std::get<1>(activeReward);
-	std::array<int, 12> new_state = getState();
+	std::array<int, states> new_state = getState();
 
 	// Check to see if the snake collided with the apple
 	if (snake.checkAppleCollision(applePos)) {
@@ -109,8 +112,10 @@ void Game::update() {
 	// Print the board if it's active
 	if (isActive)
 		std::cout << getRenderedBoard();
-	else
+	else {
+		highScore = snake.m_length > highScore ? snake.m_length : highScore;
 		iterations++;
+	}
 }
 
 void Game::generateApple() {
@@ -123,30 +128,31 @@ void Game::generateApple() {
 		for (int i{ 0 }; i < snake.m_snakePos.size(); ++i) {
 			auto& pos = snake.m_snakePos.at(i);
 			// Regenerate the apple if it is
-			if (pos[0] == x && pos[1] == y) {
-				continue;
+			if (pos.x == x && pos.y == y) {
+				break;
 			}
 			else if (i == snake.m_snakePos.size() - 1) {
 				// Set the apple's position
-				applePos[0] = x;
-				applePos[1] = y;
+				applePos.x = x;
+				applePos.y = y;
 				return;
 			}
 		}
 	}
 }
 
-std::array<float, 3>& Game::qFunction(std::array<int, 12> state) {
+std::array<float, 3>& Game::qFunction(std::array<int, states> &state) {
 	// Check if the hashmap already has the value
 	if (!Q.count(state))
 		// Place a new value in the hashmap if the value is missing
-		Q.insert(std::pair<std::array<int, 12>, std::array<float, 3>>(state, { 0, 0, 0 }));
+		Q.insert(std::pair<std::array<int, states>, std::array<float, 3>>(state, { 0, 0, 0 }));
 
 	// Return the value at the current state
 	return Q.at(state);
 }
 
-std::array<float, 3> Game::epsilonGreedy(float epsilon, std::array<int, 12> state) {
+std::array<float, 3> Game::epsilonGreedy(float epsilon, std::array<int, states> &state) {
+	epsilon = epsilon < 0 ? 0 : epsilon;
 	// Calculate the weight to give each action by default
 	float weight = epsilon / 3.0f;
 	std::array<float, 3> actionProbabilities = { weight, weight, weight };
@@ -160,26 +166,30 @@ std::array<float, 3> Game::epsilonGreedy(float epsilon, std::array<int, 12> stat
 	return actionProbabilities;
 }
 
-std::array<int, 12> Game::getState() {
+std::array<int, Game::states> Game::getState() {
 	auto snake = &getSnake();
 	std::array<int, 4> direction = snake->getDirectionArray();
 	auto snakeHead = snake->m_snakePos.at(0);
 
-	std::array<int,2> pointL = snakeHead;
-	pointL[0]--;
-	std::array<int, 2> pointR = snakeHead;
-	pointR[0]++;
-	std::array<int, 2> pointU = snakeHead;
-	pointR[1]--;
-	std::array<int, 2> pointD = snakeHead;
-	pointR[1]++;
+	Pos pointL = snakeHead - Pos(1, 0);
+	Pos pointR = snakeHead + Pos(1, 0);
+	Pos pointU = snakeHead - Pos(0, 1);
+	Pos pointD = snakeHead + Pos(0, 1);
+	Pos pointLU = pointL - Pos(0, 1);
+	Pos pointLD = pointL + Pos(0, 1);
+	Pos pointRU = pointR - Pos(0, 1);
+	Pos pointRD = pointR + Pos(0, 1);
 
-	std::array<int, 12> state = {
+	std::array<int, states> state = {
 		// Points of collisions to the Left, Right, Up, and Down
-		snake->isWall(m_width, m_height, pointL) || board[pointL[0]][pointL[1]].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointR) || board[pointR[0]][pointR[1]].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointU) || board[pointU[0]][pointU[1]].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointD) || board[pointD[0]][pointD[1]].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointL) || board[pointL.y][pointL.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointR) || board[pointR.y][pointR.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointU) || board[pointU.y][pointU.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointD) || board[pointD.y][pointD.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointLU) || board[pointLU.y][pointLU.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointRU) || board[pointRU.y][pointRU.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointLD) || board[pointLD.y][pointLD.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointRD) || board[pointRD.y][pointRD.x].getSprite() != SpriteType::EMPTY_TILE,
 
 		// Movement direction
 		direction[0], // Up
@@ -188,10 +198,10 @@ std::array<int, 12> Game::getState() {
 		direction[3], // Left
 
 		// Apple position
-		applePos[0] < snakeHead[0], // Food is to the left of the snake
-		applePos[0] > snakeHead[0], // Food is to the right of the snake
-		applePos[1] < snakeHead[1], // Food is above the snake
-		applePos[0] > snakeHead[1], // Food is below the snake
+		applePos.x < snakeHead.x, // Food is to the left of the snake
+		applePos.x > snakeHead.x, // Food is to the right of the snake
+		applePos.y < snakeHead.y, // Food is above the snake
+		applePos.y > snakeHead.y, // Food is below the snake
 	};
 
 	return state;

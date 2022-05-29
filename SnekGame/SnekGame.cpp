@@ -14,21 +14,21 @@ const float g_fps{ 60.0f };
 std::random_device dev;
 
 void play() {
-    std::mt19937 rng{ dev() };
-    // Create the game field
-    Game game{ 10, 10, rng };
+    while (true) {
+        std::mt19937 rng{ dev() };
+        // Create the game field
+        Game game{ 15, 15, rng };
 
-    while (game.isActive) {
-        if (GetAsyncKeyState('Z') & 0x8000)
-            return;
+        while (game.isActive) {
+            if (GetAsyncKeyState('Z') & 0x8000)
+                return;
 
-        game.update();
-        if (!game.isActive)
-            break;
-        Sleep((int)(1000.0 / g_fps));
+            game.update();
+            if (!game.isActive)
+                break;
+            Sleep((int)(1000.0 / g_fps));
+        }
     }
-
-    play();
 }
 
 int main()

@@ -1,31 +1,32 @@
 #include "Snake.h"
+#include "Game.h"
 #include <tuple>
 
-std::tuple<bool, int> Snake::move(std::array<int, 2> applePos) {
+std::tuple<bool, int> Snake::move(Pos &applePos) {
 	int reward = 0;
 	// Sets the position of the head based on the movement direction
-	std::array<int, 2> newPos = m_snakePos.at(0);
-	std::array<int, 2> previousPos = newPos;
+	Pos newPos = m_snakePos.at(0);
+	Pos previousPos = newPos;
 
 	// Determine the distance from the apple before the reward
-	int prevDistanceX = previousPos[0] - applePos[0];
-	int prevDistanceY = previousPos[1] - applePos[1];
+	int prevDistanceX = previousPos.x - applePos.x;
+	int prevDistanceY = previousPos.y - applePos.y;
 	int distSqr = (prevDistanceX * prevDistanceX) + (prevDistanceY * prevDistanceY);
 
 	if (m_direction.at(0) == 1) {
-		newPos[1] -= 1;
+		newPos.y -= 1;
 		m_snakePos.at(0) = newPos;
 	}
 	else if (m_direction.at(2) == 1) {
-		newPos[1] += 1;
+		newPos.y += 1;
 		m_snakePos.at(0) = newPos;
 	}
 	else if (m_direction.at(3) == 1) {
-		newPos[0] -= 1;
+		newPos.x -= 1;
 		m_snakePos.at(0) = newPos;
 	}
 	else if (m_direction.at(1)) {
-		newPos[0] += 1;
+		newPos.x += 1;
 		m_snakePos.at(0) = newPos;
 	}
 
@@ -35,8 +36,8 @@ std::tuple<bool, int> Snake::move(std::array<int, 2> applePos) {
 	}
 
 	// Determine new distance to apple after movement
-	int newDistanceX = newPos[0] - applePos[0];
-	int newDistanceY = newPos[1] - applePos[1];
+	int newDistanceX = newPos.x - applePos.x;
+	int newDistanceY = newPos.y - applePos.y;
 	int newDistSqr = (newDistanceX * newDistanceX) + (newDistanceY * newDistanceY);
 
 	// Determine the reward
@@ -54,7 +55,7 @@ std::tuple<bool, int> Snake::move(std::array<int, 2> applePos) {
 
 		// Check if the head collides with any segment that isn't the empty segement
 		if (i < m_snakePos.size() - 1 && m_snakePos.at(0) == newPos) {
-			reward += deathReward;
+			reward += deathReward/* * (m_length - 1)*/;
 			return std::make_tuple(false, reward);
 		}
 	}
@@ -88,7 +89,7 @@ void Snake::setDirection(Direction movement) {
 	}
 }
 
-bool Snake::checkAppleCollision(std::array<int, 2> pos) {
+bool Snake::checkAppleCollision(Pos &pos) {
 	return m_snakePos.at(0) == pos;
 }
 
@@ -97,10 +98,10 @@ bool Snake::checkBoundaryCollision(int width, int height) {
 	return isWall(width, height, pos);
 }
 
-bool Snake::isWall(int width, int height, std::array<int, 2> pos) {
-	if (pos[0] < 0 || pos[0] >= width)
+bool Snake::isWall(int width, int height, Pos &pos) {
+	if (pos.x < 0 || pos.x >= width)
 		return true;
-	else if (pos[1] < 0 || pos[1] >= height)
+	else if (pos.y < 0 || pos.y >= height)
 		return true;
 	return false;
 }
