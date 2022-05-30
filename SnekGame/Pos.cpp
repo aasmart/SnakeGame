@@ -3,7 +3,7 @@
 Pos::Pos()
 {
 	this->x = 0;
-	this->x = 0;
+	this->y = 0;
 }
 
 Pos::Pos(int x, int y)
@@ -20,10 +20,10 @@ bool operator==(const Pos& lhs, const Pos& rhs)
 
 Pos operator-(const Pos& lhs, const Pos& rhs)
 {
-	return Pos(lhs.x - rhs.x, lhs.x - rhs.x);
+	return Pos(lhs.x - rhs.x, lhs.y - rhs.y);
 }
 
 Pos operator+(const Pos& lhs, const Pos& rhs)
 {
-	return Pos(lhs.x + rhs.x, lhs.x + rhs.x);
+	return Pos(lhs.x + rhs.x, lhs.y + rhs.y);
 }
