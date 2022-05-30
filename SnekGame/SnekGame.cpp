@@ -20,7 +20,7 @@ void play() {
         Game game{ 15, 15, rng };
 
         while (game.isActive) {
-            if (GetAsyncKeyState('Z') & 0x8000)
+            if (GetAsyncKeyState('Q') & 0x8000)
                 return;
 
             game.update();
@@ -35,11 +35,11 @@ int main()
 {
 
     // Wait for player input to begin the game
-    std::cout << "Press 'W' to Play and 'Z' to Quit.";
+    std::cout << "Press 'W' to Play and 'Q' to Quit.";
     while (true) {
         if (GetAsyncKeyState('W') & 0x8000)
             play();
-        else if (GetAsyncKeyState('Z') & 0x8000)
+        else if (GetAsyncKeyState('Q') & 0x8000)
             return 0;
     }
     

@@ -63,4 +63,5 @@ public:
 
 	std::array<int, states> getState();
 
+	bool isTile(Pos pos, SpriteType tileType);
 };

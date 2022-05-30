@@ -38,7 +38,7 @@ std::string Game::getRenderedBoard() {
 	// Print header text and horizontal bar
 	int length = snake.m_length - 1;
 	std::string output{
-		"Snek AI v0.3 | Current Length: " + std::to_string(length)
+		"Snek AI v0.4 | Current Length: " + std::to_string(length)
 		+ " | Iteration: " + std::to_string(iterations) + " | Moves: " + std::to_string(snake.m_moves)
 		+ " | Discoverd States: " + std::to_string(Q.size())
 		+ " | High Score: " + std::to_string(highScore)
@@ -109,6 +109,7 @@ void Game::update() {
 	qFunction(state)[action] += alpha * delta;
 
 	system("cls");
+
 	// Print the board if it's active
 	if (isActive)
 		std::cout << getRenderedBoard();
@@ -169,7 +170,7 @@ std::array<float, 3> Game::epsilonGreedy(float epsilon, std::array<int, states> 
 std::array<int, Game::states> Game::getState() {
 	auto snake = &getSnake();
 	std::array<int, 4> direction = snake->getDirectionArray();
-	auto snakeHead = snake->m_snakePos.at(0);
+	auto& snakeHead = snake->m_snakePos.at(0);
 
 	Pos pointL = snakeHead - Pos(1, 0);
 	Pos pointR = snakeHead + Pos(1, 0);
@@ -182,14 +183,14 @@ std::array<int, Game::states> Game::getState() {
 
 	std::array<int, states> state = {
 		// Points of collisions to the Left, Right, Up, and Down
-		snake->isWall(m_width, m_height, pointL) || board[pointL.y][pointL.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointR) || board[pointR.y][pointR.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointU) || board[pointU.y][pointU.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointD) || board[pointD.y][pointD.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointLU) || board[pointLU.y][pointLU.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointRU) || board[pointRU.y][pointRU.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointLD) || board[pointLD.y][pointLD.x].getSprite() != SpriteType::EMPTY_TILE,
-		snake->isWall(m_width, m_height, pointRD) || board[pointRD.y][pointRD.x].getSprite() != SpriteType::EMPTY_TILE,
+		snake->isWall(m_width, m_height, pointL) || !isTile(pointL, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointR) || !isTile(pointR, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointU) || !isTile(pointU, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointD) || !!isTile(pointD, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointLU) || !isTile(pointLU, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointRU) || !isTile(pointRU, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointLD) || !isTile(pointLD, SpriteType::EMPTY_TILE),
+		snake->isWall(m_width, m_height, pointRD) || !isTile(pointRD, SpriteType::EMPTY_TILE),
 
 		// Movement direction
 		direction[0], // Up
@@ -205,4 +206,8 @@ std::array<int, Game::states> Game::getState() {
 	};
 
 	return state;
+}
+
+bool Game::isTile(Pos pos, SpriteType tileType) {
+	return board[pos.y][pos.x].getSprite() == tileType;
 }
