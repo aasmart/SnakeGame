@@ -19,10 +19,10 @@ public:
 	int m_moves = 0;
 
 	// "Rewards"
-	const int deathReward{ -1000 };
-	const int towardsReward{ 50 };
-	const int awayReward{ -60 };
-	const int winRewards{ 500 };
+	const static int deathReward{ -1000 };
+	const static int towardsReward{ 50 };
+	const static int awayReward{ -60 };
+	const static int winRewards{ 500 };
 
 	/// <summary>
 	/// Moves the snake in the chosen direction

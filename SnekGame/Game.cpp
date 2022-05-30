@@ -87,15 +87,16 @@ void Game::update() {
 	std::tuple<bool, int> activeReward = snake.move(applePos);
 
 	// Sets the board's status if the snake is moving and is not colliding with the walls
-	isActive = std::get<0>(activeReward) && !snake.checkBoundaryCollision(m_width, m_height);
+	bool hitWall{ snake.checkBoundaryCollision(m_width, m_height) };
+	isActive = std::get<0>(activeReward) && !hitWall;
 
-	int reward = std::get<1>(activeReward);
+	int reward = std::get<1>(activeReward) + (hitWall ? Snake::deathReward : 0);
 	std::array<int, states> new_state = getState();
 
 	// Check to see if the snake collided with the apple
 	if (snake.checkAppleCollision(applePos)) {
 		snake.m_length++;
-		reward += snake.winRewards;
+		reward += Snake::winRewards;
 		generateApple();
 	}
 
