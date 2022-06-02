@@ -20,4 +20,6 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	std::string getRenderedSprite();
+
+	SpriteType getSprite();
 };

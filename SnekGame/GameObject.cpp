@@ -18,3 +18,7 @@ std::string GameObject::getRenderedSprite() {
 			return "X";
 	}
 }
+
+SpriteType GameObject::getSprite() {
+	return m_sprite;
+}
